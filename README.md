@@ -18,4 +18,10 @@ A social network for developers built using the MERN stack (MongoDB, Express, Re
 <li>Ability to comment on/discuss posts</li>
 </ul>
 
+# Development
 
+<ol>
+  <li>To Install dependencies run: npm install</li>
+  <li>To install Client dependencies change directory to client and run: npm install</li>
+  <li>To run frontend and backend concurrently run: npm run dev </li>
+</ol>
