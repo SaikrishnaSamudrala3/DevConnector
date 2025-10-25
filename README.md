@@ -1,27 +1,56 @@
 # DevConnector
-A social network for developers built using the MERN stack (MongoDB, Express, React, Node.js), with Redux employed for state management.
 
-# Features
-<ul>Login and Register.
-<ul>Publicly assessible:</ul>
-<li>A list of all registered devlopers in database.</li>
-<li>Individual profiles of each developer</li>
-<ul>Privately assessible:</ul>
-<li>Personal dashboard (showcasing experiences and education)</li>
-<li>Profile editing interface</li>
-<li>Interface for adding experience</li>
-<li>Interface for adding education</li>
-<li>Option to delete account</li>
-<ul>Posts:</ul>
-<li>Ability to create and delete posts</li>
-<li>Ability to like and dislike posts</li>
-<li>Ability to comment on/discuss posts</li>
-</ul>
+A full-stack social networking application for developers—built with the MERN stack (MongoDB, Express, React, Node.js).  
+Users can register/login, create profiles, add education/experience, post updates, like/comment, connect with GitHub, and more.
 
-# Development
+---
 
-<ol>
-  <li>To Install dependencies run: npm install</li>
-  <li>To install Client dependencies change directory to client and run: npm install</li>
-  <li>To run frontend and backend concurrently run: npm run dev </li>
-</ol>
+## Features
+
+- User authentication (JWT) and session handling  
+- Profiles: create, edit, add experience & education  
+- Developer listings: browse other devs, view public profiles  
+- Posts: create, like/unlike, comment/discuss  
+- GitHub integration: show GitHub repos on profile  
+- Protected routes and user permissions  
+- Responsive React frontend + Node/Express backend + MongoDB data store  
+
+---
+
+## Prerequisites
+
+Before running locally, make sure you have:
+
+- Node.js (v14+ recommended)  
+- MongoDB (Atlas or local)  
+- Git for cloning the repository  
+- An account on GitHub (if using GitHub-integration feature)  
+
+---
+
+## Installation & Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/SaikrishnaSamudrala3/DevConnector.git
+cd DevConnector
+
+# Install backend dependencies
+npm install
+
+# Install frontend dependencies
+cd client
+npm install
+cd ..
+
+# Create configuration file
+#   In server/config folder (or config/) create default.json or .env with something like:
+# {
+#   "mongoURI": "<your_mongo_db_uri>",
+#   "jwtSecret": "<your_jwt_secret>",
+#   "githubClientId": "<your_github_client_id>",
+#   "githubSecret": "<your_github_client_secret>"
+# }
+
+# Start the application
+npm run dev     # runs backend + frontend concurrently with hot-reload
