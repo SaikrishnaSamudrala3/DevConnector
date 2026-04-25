@@ -5,10 +5,44 @@ const path = require('path');
 const app = express();
 
 // Connect Database
-connectDB();
+if (!process.env.VERCEL) {
+  connectDB();
+}
 
 // Init Middleware
 app.use(express.json());
+
+app.get('/api/health', async (req, res) => {
+  try {
+    await connectDB();
+    res.json({
+      ok: true,
+      database: 'connected',
+      mongoUriConfigured: Boolean(process.env.MONGO_URI),
+      jwtSecretConfigured: Boolean(process.env.JWT_SECRET)
+    });
+  } catch (err) {
+    res.status(500).json({
+      ok: false,
+      database: 'disconnected',
+      mongoUriConfigured: Boolean(process.env.MONGO_URI),
+      jwtSecretConfigured: Boolean(process.env.JWT_SECRET),
+      error: err.message
+    });
+  }
+});
+
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({
+      errors: [{ msg: 'Database connection failed' }],
+      detail: process.env.NODE_ENV === 'production' ? undefined : err.message
+    });
+  }
+});
 
 // Define Routes
 app.use('/api/users', require('./routes/api/users'));

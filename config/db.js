@@ -2,14 +2,31 @@ const mongoose = require('mongoose');
 const config = require('config');
 const db = config.get('mongoURI');
 
+let connectionPromise;
+
 const connectDB = async () => {
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (connectionPromise) {
+    return connectionPromise;
+  }
+
   try {
-    await mongoose.connect(db);
+    connectionPromise = mongoose.connect(db);
+    await connectionPromise;
 
     console.log('MongoDB Connected...');
+    return mongoose.connection;
   } catch (err) {
+    connectionPromise = null;
     console.error(err.message);
-    // Exit process with failure
+
+    if (process.env.VERCEL) {
+      throw err;
+    }
+
     process.exit(1);
   }
 };
