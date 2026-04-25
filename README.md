@@ -21,10 +21,11 @@ Users can register/login, create profiles, add education/experience, post update
 
 Before running locally, make sure you have:
 
-- Node.js (v14+ recommended)  
+- Node.js (v20+ recommended)  
 - MongoDB (Atlas or local)  
 - Git for cloning the repository  
-- An account on GitHub (if using GitHub-integration feature)  
+- Docker Desktop, if you want to run the app in containers
+- A GitHub personal access token, if using the GitHub repos feature
 
 ---
 
@@ -39,18 +40,48 @@ cd DevConnector
 npm install
 
 # Install frontend dependencies
-cd client
-npm install
-cd ..
+npm install --prefix client
 
-# Create configuration file
-#   In server/config folder (or config/) create default.json or .env with something like:
-# {
-#   "mongoURI": "<your_mongo_db_uri>",
-#   "jwtSecret": "<your_jwt_secret>",
-#   "githubClientId": "<your_github_client_id>",
-#   "githubSecret": "<your_github_client_secret>"
-# }
+# Configure environment variables as needed:
+#   MONGO_URI=<your_mongo_db_uri>
+#   JWT_SECRET=<your_jwt_secret>
+#   GITHUB_TOKEN=<your_github_personal_access_token>
 
 # Start the application
-npm run dev     # runs backend + frontend concurrently with hot-reload
+npm run dev     # backend on :5001, Vite frontend on :3000
+```
+
+## Production Build
+
+```bash
+npm run build
+npm start
+```
+
+The Express server serves the compiled Vite client from `client/build` when
+`NODE_ENV=production`.
+
+## Docker
+
+```bash
+docker compose up --build
+```
+
+The compose stack starts the app on `http://localhost:5000` and MongoDB on
+`localhost:27017`. Override `JWT_SECRET`, `MONGO_URI`, and `GITHUB_TOKEN` for
+real deployments.
+
+For local Docker overrides, copy `.env.example` to `.env` and update the values.
+Docker Compose reads `.env` automatically.
+
+## Deployment Environment Variables
+
+Set these in your hosting provider's environment/settings panel:
+
+- `NODE_ENV=production`
+- `MONGO_URI`: your MongoDB Atlas connection string
+- `JWT_SECRET`: a long random secret used to sign login tokens
+- `GITHUB_TOKEN`: optional GitHub personal access token for repo lookups
+- `PORT`: optional; most hosts inject this automatically
+
+Do not commit real credentials. `.env` files are ignored by git.

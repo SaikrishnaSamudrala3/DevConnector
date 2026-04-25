@@ -4,13 +4,17 @@ const config = require('config');
 const router = express.Router();
 const auth = require('../../middleware/auth');
 const { check, validationResult } = require('express-validator');
-// bring in normalize to give us a proper url, regardless of what user entered
-const normalize = require('normalize-url');
 const checkObjectId = require('../../middleware/checkObjectId');
 
 const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 const Post = require('../../models/Post');
+
+const normalizeUrl = (value) => {
+  const url = value.trim();
+  if (url.startsWith('//')) return `https:${url}`;
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+};
 
 // @route    GET api/profile/me
 // @desc     Get current users profile
@@ -64,7 +68,7 @@ router.post(
       user: req.user.id,
       website:
         website && website !== ''
-          ? normalize(website, { forceHttps: true })
+          ? normalizeUrl(website)
           : '',
       skills: Array.isArray(skills)
         ? skills
@@ -78,7 +82,7 @@ router.post(
     // normalize social fields to ensure valid url
     for (const [key, value] of Object.entries(socialFields)) {
       if (value && value.length > 0)
-        socialFields[key] = normalize(value, { forceHttps: true });
+        socialFields[key] = normalizeUrl(value);
     }
     // add to profileFields
     profileFields.social = socialFields;
@@ -88,7 +92,7 @@ router.post(
       let profile = await Profile.findOneAndUpdate(
         { user: req.user.id },
         { $set: profileFields },
-        { new: true, upsert: true, setDefaultsOnInsert: true }
+        { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
       );
       return res.json(profile);
     } catch (err) {
@@ -143,8 +147,8 @@ router.delete('/', auth, async (req, res) => {
     // Remove user
     await Promise.all([
       Post.deleteMany({ user: req.user.id }),
-      Profile.findOneAndRemove({ user: req.user.id }),
-      User.findOneAndRemove({ _id: req.user.id })
+      Profile.findOneAndDelete({ user: req.user.id }),
+      User.findOneAndDelete({ _id: req.user.id })
     ]);
 
     res.json({ msg: 'User deleted' });
@@ -266,9 +270,10 @@ router.get('/github/:username', async (req, res) => {
       `https://api.github.com/users/${req.params.username}/repos?per_page=5&sort=created:asc`
     );
     const headers = {
-      'user-agent': 'node.js',
-      Authorization: `token ${config.get('githubToken')}`
+      'user-agent': 'node.js'
     };
+    const githubToken = config.get('githubToken');
+    if (githubToken) headers.Authorization = `Bearer ${githubToken}`;
 
     const gitHubResponse = await axios.get(uri, { headers });
     return res.json(gitHubResponse.data);

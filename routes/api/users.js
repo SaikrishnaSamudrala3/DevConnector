@@ -5,9 +5,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
-const normalize = require('normalize-url');
 
 const User = require('../../models/User');
+
+const normalizeUrl = (value) => {
+  const url = value.trim();
+  if (url.startsWith('//')) return `https:${url}`;
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+};
 
 // @route    POST api/users
 // @desc     Register user
@@ -37,13 +42,12 @@ router.post(
           .json({ errors: [{ msg: 'User already exists' }] });
       }
 
-      const avatar = normalize(
+      const avatar = normalizeUrl(
         gravatar.url(email, {
           s: '200',
           r: 'pg',
           d: 'mm'
-        }),
-        { forceHttps: true }
+        })
       );
 
       user = new User({
