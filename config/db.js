@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
-const config = require('config');
-const db = config.get('mongoURI');
+const { getMongoUri } = require('./appConfig');
 
 let connectionPromise;
 
@@ -14,6 +13,12 @@ const connectDB = async () => {
   }
 
   try {
+    const db = getMongoUri();
+
+    if (!db) {
+      throw new Error('MONGO_URI is not configured');
+    }
+
     connectionPromise = mongoose.connect(db);
     await connectionPromise;
 

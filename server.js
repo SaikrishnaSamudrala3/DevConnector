@@ -12,6 +12,10 @@ if (!process.env.VERCEL) {
 // Init Middleware
 app.use(express.json());
 
+app.get('/api/ping', (req, res) => {
+  res.json({ ok: true });
+});
+
 app.get('/api/health', async (req, res) => {
   try {
     await connectDB();
